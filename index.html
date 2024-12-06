@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello World</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        function addParticipant() {
+            const participantName = document.getElementById('participant-name').value.trim();
+            if (participantName) {
+                const participantsList = document.getElementById('participants-list');
+
+                const participantDiv = document.createElement('div');
+                participantDiv.className = 'participant';
+
+                const colorCircle = document.createElement('span');
+                colorCircle.className = 'color-circle';
+                colorCircle.style.backgroundColor = getRandomColor();
+
+                const participantButton = document.createElement('button');
+                participantButton.textContent = participantName;
+                participantButton.className = 'participant-button';
+
+                participantDiv.appendChild(colorCircle);
+                participantDiv.appendChild(participantButton);
+                participantsList.appendChild(participantDiv);
+
+                document.getElementById('participant-name').value = '';
+            }
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    </script>
 </head>
 <body>
     <header class="header">
@@ -16,5 +50,21 @@
         </div>
     </header>
     <div class="hello-world">Hello World</div>
+    <section>
+        <h1 id="meeting-title" contenteditable="true" ondblclick="this.contentEditable=true">Nom de la réunion</h1>
+        <div class="meeting-details">
+            <p id="meeting-location" contenteditable="true" ondblclick="this.contentEditable=true">Lieu</p>
+            <label for="meeting-date">Date :</label>
+            <input type="date" id="meeting-date" name="meeting-date">
+        </div>
+    </section>
+    <section>
+        <h2>Ajouter des participants</h2>
+        <div class="add-participant">
+            <input type="text" id="participant-name" placeholder="Nom du participant">
+            <button onclick="addParticipant()">Ajouter</button>
+        </div>
+        <div id="participants-list" class="participants-list"></div>
+    </section>
 </body>
 </html>
