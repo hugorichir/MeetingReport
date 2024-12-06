@@ -80,6 +80,9 @@
 
             agendaContainer.insertBefore(agendaPoint, document.getElementById('add-agenda-button'));
         }
+		 function printPage() {
+        window.print();
+		}
     </script>
 </head>
 <body>
@@ -114,5 +117,10 @@
             <button id="add-agenda-button" onclick="addAgendaPoint()">+</button>
         </div>
     </section>
+	<section>
+	<button onclick="printPage()" style="position: fixed; top: 10px; right: 10px; padding: 10px; background-color: #009bff; color: white; border: none; cursor: pointer;">
+    Print Page
+</button>
+	</section>
 </body>
 </html>
