@@ -1,15 +1,36 @@
 body {
     font-family: Arial, sans-serif;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
 }
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #001f3f; /* Bleu marine */
+    color: white;
+    padding: 10px 20px;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-img {
+    height: 40px;
+}
+
+.welcome-message {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
 .hello-world {
     font-size: 2rem;
     font-weight: bold;
     color: #333;
+    margin-top: 20px;
 }
