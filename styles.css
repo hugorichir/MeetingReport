@@ -26,6 +26,7 @@ body {
 .welcome-message {
     font-size: 1.2rem;
     font-weight: bold;
+	margin-right: 20px;
 }
 
 .hello-world {
