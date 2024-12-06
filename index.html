@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>MeetingReport</title>
     <link rel="stylesheet" href="styles.css">
     <script>
         function addParticipant() {
@@ -83,6 +83,30 @@
 		 function printPage() {
         window.print();
 		}
+		 function initializeMap() {
+            const locationInput = document.getElementById('meeting-location');
+            const mapContainer = document.getElementById('map');
+
+            if (locationInput.textContent.trim() !== '') {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ address: locationInput.textContent }, function (results, status) {
+                    if (status === 'OK') {
+                        const map = new google.maps.Map(mapContainer, {
+                            center: results[0].geometry.location,
+                            zoom: 14,
+                        });
+                        new google.maps.Marker({
+                            position: results[0].geometry.location,
+                            map: map,
+                        });
+                    } else {
+                        mapContainer.innerHTML = '<p>Lieu introuvable.</p>';
+                    }
+                });
+            } else {
+                mapContainer.innerHTML = '<p>Veuillez saisir un lieu.</p>';
+            }
+        }
     </script>
 </head>
 <body>
@@ -98,9 +122,10 @@
     <section>
         <h1 id="meeting-title" contenteditable="true" ondblclick="this.contentEditable=true">Nom de la réunion</h1>
         <div class="meeting-details">
-            <p id="meeting-location" contenteditable="true" ondblclick="this.contentEditable=true">Lieu</p>
+            <p id="meeting-location" contenteditable="true" ondblclick="this.contentEditable=true" onblur="initializeMap()">Lieu</p>
             <label for="meeting-date">Date :</label>
             <input type="date" id="meeting-date" name="meeting-date">
+			<div id="map" style="height: 300px; width: 100%; margin-top: 20px; background-color: #eaeaea;"></div>
         </div>
     </section>
     <section>
@@ -115,12 +140,13 @@
         <h2>Ordre du jour</h2>
         <div id="agenda-container">
             <button id="add-agenda-button" onclick="addAgendaPoint()">+</button>
+				<button onclick="printPage()" style="position: fixed; top: 10px; right: 10px; padding: 10px; background-color: #009bff; color: white; border: none; cursor: pointer;"> 
+				Print Page
+				</button>
         </div>
     </section>
 	<section>
-	<button onclick="printPage()" style="position: fixed; top: 10px; right: 10px; padding: 10px; background-color: #009bff; color: white; border: none; cursor: pointer;">
-    Print Page
-</button>
+
 	</section>
 </body>
 </html>
