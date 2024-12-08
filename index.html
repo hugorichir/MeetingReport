@@ -3,154 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeetingReport</title>
+    <title>Login Page</title>
     <link rel="stylesheet" href="styles.css">
     <script>
-         document.addEventListener("DOMContentLoaded", function() {
-            const addOrgPopup = document.getElementById('add-organization-popup');
-            const orgNameInput = document.getElementById('organization-name');
+        document.addEventListener("DOMContentLoaded", function() {
+            const loginSection = document.getElementById('login-section');
+            const createOrgSection = document.getElementById('create-organization-section');
 
-            window.openAddOrganizationPopup = function() {
-                addOrgPopup.style.display = 'block';
+            function generateRandomID() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+
+            async function saveOrganizationToExistingPackageJSON(orgName, orgID) {
+                const filePath = './package.json';
+                try {
+                    const response = await fetch(filePath);
+                    let packageData = {};
+
+                    if (response.ok) {
+                        packageData = await response.json();
+                    }
+
+                    if (!packageData.organizations) {
+                        packageData.organizations = [];
+                    }
+
+                    packageData.organizations.push({ id: orgID, name: orgName });
+
+                    const blob = new Blob([JSON.stringify(packageData, null, 2)], { type: 'application/json' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'package.json';
+                    link.click();
+                } catch (error) {
+                    console.error('Error updating package.json:', error);
+                    alert('Une erreur est survenue lors de la mise à jour de package.json');
+                }
+            }
+
+            window.showCreateOrganizationForm = function() {
+                loginSection.style.display = 'none';
+                createOrgSection.style.display = 'block';
             };
 
-            window.closeAddOrganizationPopup = function() {
-                addOrgPopup.style.display = 'none';
-                orgNameInput.value = '';
-            };
+            window.createOrganization = function() {
+                const orgName = document.getElementById('new-organization-name').value.trim();
+                const orgPhoto = document.getElementById('organization-photo').files[0];
 
-            window.createOrganizationFile = function() {
-                const orgName = orgNameInput.value.trim();
-                if (orgName === '') {
+                if (!orgName) {
                     alert('Veuillez entrer un nom d\'organisation.');
                     return;
                 }
 
-                const fileContent = JSON.stringify({ name: orgName }, null, 2);
-                const blob = new Blob([fileContent], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${orgName}.json`;
-                link.click();
+                const orgID = generateRandomID();
+                alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
 
-                closeAddOrganizationPopup();
+                saveOrganizationToExistingPackageJSON(orgName, orgID);
             };
         });
-        function addParticipant() {
-            const participantName = document.getElementById('participant-name').value.trim();
-            if (participantName) {
-                const participantsList = document.getElementById('participants-list');
-
-                const participantDiv = document.createElement('div');
-                participantDiv.className = 'participant';
-
-                const colorCircle = document.createElement('span');
-                colorCircle.className = 'color-circle';
-                colorCircle.style.backgroundColor = getRandomColor();
-
-                const participantButton = document.createElement('button');
-                participantButton.textContent = participantName;
-                participantButton.className = 'participant-button';
-
-                participantDiv.appendChild(colorCircle);
-                participantDiv.appendChild(participantButton);
-                participantsList.appendChild(participantDiv);
-
-                document.getElementById('participant-name').value = '';
-            }
-        }
-
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        function addAgendaPoint() {
-            const agendaContainer = document.getElementById('agenda-container');
-
-            const agendaPoint = document.createElement('div');
-            agendaPoint.className = 'agenda-point';
-
-            const title = document.createElement('h3');
-            title.textContent = 'Titre du point';
-            title.contentEditable = 'true';
-            title.className = 'agenda-title';
-
-            const commentInput = document.createElement('textarea');
-            commentInput.placeholder = 'Ajouter un commentaire';
-            commentInput.className = 'agenda-comment';
-
-            const actionDiv = document.createElement('div');
-            actionDiv.className = 'agenda-action';
-
-            const actionInput = document.createElement('input');
-            actionInput.type = 'text';
-            actionInput.placeholder = 'Ajouter une prochaine action';
-
-            const actionButton = document.createElement('button');
-            actionButton.textContent = 'Ajouter';
-            actionButton.onclick = () => {
-                const actionItem = document.createElement('p');
-                actionItem.textContent = actionInput.value;
-                actionItem.className = 'action-item';
-                actionDiv.appendChild(actionItem);
-                actionInput.value = '';
-            };
-
-            actionDiv.appendChild(actionInput);
-            actionDiv.appendChild(actionButton);
-
-            agendaPoint.appendChild(title);
-            agendaPoint.appendChild(commentInput);
-            agendaPoint.appendChild(actionDiv);
-
-            agendaContainer.insertBefore(agendaPoint, document.getElementById('add-agenda-button'));
-        }
-		 function printPage() {
-        window.print();
-		}
     </script>
 </head>
 <body>
     <header class="header">
-        <div class="logo">
-            <img src="logo.png" alt="Logo" class="logo-img">
-        </div>
-         <div class="organization-actions">
-            <button onclick="openAddOrganizationPopup()">Ajouter une organisation</button>
-        </div>
+        <h1>Bienvenue</h1>
     </header>
-    <section>
-        <h1 id="meeting-title" contenteditable="true" ondblclick="this.contentEditable=true">Nom de la réunion</h1>
-        <div class="meeting-details">
-            <p id="meeting-location" contenteditable="true" ondblclick="this.contentEditable=true" onblur="initializeMap()">Lieu</p>
-            <label for="meeting-date">Date :</label>
-            <input type="date" id="meeting-date" name="meeting-date">
-        </div>
-    </section>
-    <section>
-        <h2>Ajouter des participants</h2>
-        <div class="add-participant">
-            <input type="text" id="participant-name" placeholder="Nom du participant">
-            <button onclick="addParticipant()">Ajouter</button>
-        </div>
-        <div id="participants-list" class="participants-list"></div>
-    </section>
-    <section>
-        <h2>Ordre du jour</h2>
-        <div id="agenda-container">
-            <button id="add-agenda-button" onclick="addAgendaPoint()">+</button>
-				<button onclick="printPage()" style="position: fixed; top: 10px; right: 10px; padding: 10px; background-color: #009bff; color: white; border: none; cursor: pointer;"> 
-				Print Page
-				</button>
-        </div>
-    </section>
-	<section>
 
-	</section>
+    <!-- Login Section -->
+    <section id="login-section">
+        <h2>Connectez-vous à votre organisation</h2>
+        <input type="text" id="organization-id" placeholder="ID de l'organisation">
+        <button onclick="alert('Connexion en cours...')">Se connecter</button>
+        <button onclick="showCreateOrganizationForm()">Créer une organisation</button>
+    </section>
+
+    <!-- Create Organization Section -->
+    <section id="create-organization-section" style="display: none;">
+        <h2>Créer une nouvelle organisation</h2>
+        <form id="create-organization-form">
+            <label for="new-organization-name">Nom de l'organisation :</label>
+            <input type="text" id="new-organization-name" placeholder="Nom de l'organisation" required>
+            <br>
+            <label for="organization-photo">Ajouter une photo :</label>
+            <input type="file" id="organization-photo" accept="image/*">
+            <br>
+            <button type="button" onclick="createOrganization()">Créer</button>
+        </form>
+    </section>
 </body>
 </html>
