@@ -5,75 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="styles.css">
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const loginSection = document.getElementById('login-section');
-            const createOrgSection = document.getElementById('create-organization-section');
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loginSection = document.getElementById('login-section');
+        const createOrgSection = document.getElementById('create-organization-section');
 
-            function generateRandomID() {
-                return Math.random().toString(36).substr(2, 9);
-            }
+        function generateRandomID() {
+            return Math.random().toString(36).substr(2, 9);
+        }
 
-            async function saveOrganizationToPackageJSON(orgName, orgID) {
-                const filePath = './package.json';
-                try {
-                    const response = await fetch(filePath);
-                    let packageData = {};
+        async function saveOrganizationToPackageJSON(orgName, orgID) {
+            const filePath = './package.json';
+            try {
+                const response = await fetch(filePath);
+                let packageData = {};
 
-                    if (response.ok) {
-                        packageData = await response.json();
+                if (response.ok) {
+                    const text = await response.text();
+                    try {
+                        packageData = JSON.parse(text); // Valider si c'est bien un JSON
+                    } catch (e) {
+                        console.warn('Fichier package.json non valide. Création d\'un nouveau fichier.');
+                        packageData = { organizations: [] }; // Si invalide, créer une structure vide
                     }
-
-                    if (!packageData.organizations) {
-                        packageData.organizations = [];
-                    }
-
-                    packageData.organizations.push({ id: orgID, name: orgName });
-
-                    const blob = new Blob([JSON.stringify(packageData, null, 2)], { type: 'application/json' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'package.json';
-                    link.click();
-                } catch (error) {
-                    console.error('Error updating package.json:', error);
-                    alert('Une erreur est survenue lors de la mise à jour de package.json');
-                }
-            }
-
-            window.showCreateOrganizationForm = function() {
-                loginSection.style.display = 'none';
-                createOrgSection.style.display = 'block';
-            };
-
-            window.createOrganization = function() {
-                const orgName = document.getElementById('new-organization-name').value.trim();
-                const orgPhoto = document.getElementById('organization-photo').files[0];
-
-                if (!orgName) {
-                    alert('Veuillez entrer un nom d\'organisation.');
-                    return;
                 }
 
-                const orgID = generateRandomID();
-                alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
+                if (!packageData.organizations) {
+                    packageData.organizations = [];
+                }
 
-                saveOrganizationToPackageJSON(orgName, orgID);
-            };
-        });
+                packageData.organizations.push({ id: orgID, name: orgName });
 
-        /**
-         * JSON Format Example for package.json:
-         * {
-         *   "organizations": [
-         *     {
-         *       "id": "random_id",
-         *       "name": "Organization Name"
-         *     }
-         *   ]
-         * }
-         */
-    </script>
+                const blob = new Blob([JSON.stringify(packageData, null, 2)], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'package.json';
+                link.click();
+            } catch (error) {
+                console.error('Error updating package.json:', error);
+                alert('Une erreur est survenue lors de la mise à jour de package.json');
+            }
+        }
+
+        window.showCreateOrganizationForm = function () {
+            loginSection.style.display = 'none';
+            createOrgSection.style.display = 'block';
+        };
+
+        window.createOrganization = function () {
+            const orgName = document.getElementById('new-organization-name').value.trim();
+            const orgPhoto = document.getElementById('organization-photo').files[0];
+
+            if (!orgName) {
+                alert('Veuillez entrer un nom d\'organisation.');
+                return;
+            }
+
+            const orgID = generateRandomID();
+            alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
+
+            saveOrganizationToPackageJSON(orgName, orgID);
+        };
+    });
+
+    /**
+     * JSON Format Example for package.json:
+     * {
+     *   "organizations": [
+     *     {
+     *       "id": "random_id",
+     *       "name": "Organization Name"
+     *     }
+     *   ]
+     * }
+     */
+</script>
 </head>
 <body>
     <header class="header">
