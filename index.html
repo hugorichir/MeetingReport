@@ -9,7 +9,7 @@
     <script>
         const SUPABASE_URL = "https://jniduojcihgdktmrkmth.supabase.co"; // Replace with your Supabase URL
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaWR1b2pjaWhnZGt0bXJrbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM3NDc1NzAsImV4cCI6MjA0OTMyMzU3MH0.3jWkZ1FdNFOFfnzBXEX1GQS2q8-tQ4VvxGwYcbqLO9M"; // Replace with your Supabase Key
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : createSupabaseClient(SUPABASE_URL, SUPABASE_KEY);
 
         document.addEventListener("DOMContentLoaded", function() {
             const loginSection = document.getElementById('login-section');
