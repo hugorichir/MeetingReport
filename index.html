@@ -18,7 +18,28 @@
             function generateRandomID() {
                 return Math.random().toString(36).substr(2, 9);
             }
+            
+            async function checkOrganizationExists(orgName) {
+                try {
+                    const { data, error } = await supabase
+                        .from('organizations') // Replace with your table name
+                        .select('name')
+                        .eq('name', orgName);
 
+                    if (error) {
+                        console.error('Error checking organization existence:', error);
+                        alert('Une erreur est survenue lors de la vérification du nom d\'organisation.');
+                        return false;
+                    }
+
+                    return data.length > 0; // Returns true if organization exists
+                } catch (error) {
+                    console.error('Unexpected error:', error);
+                    alert('Une erreur inattendue est survenue sur la verif du nom pris.');
+                    return false;
+                }
+            }
+            
             async function saveOrganizationToSupabase(orgName, orgID) {
                 try {
                     const { data, error } = await supabase
@@ -48,6 +69,12 @@
 
                 if (!orgName) {
                     alert('Veuillez entrer un nom d\'organisation.');
+                    return;
+                }
+                
+                const exists = await checkOrganizationExists(orgName);
+                if (exists) {
+                    alert('Le nom d\'organisation existe déjà. Veuillez en choisir un autre.');
                     return;
                 }
 
