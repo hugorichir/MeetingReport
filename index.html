@@ -214,9 +214,16 @@
     <!-- Login Section -->
     <section id="login-section">
         <h2>Connectez-vous à votre organisation</h2>
-        <input type="text" id="organization-id" placeholder="ID de l'organisation">
-        <button onclick="loginToOrganization()">Se connecter</button>
-        <button onclick="showCreateOrganizationForm()">Créer une organisation</button>
+        <div style="display: flex; justify-content: center; align-items: center;">
+        <input type="text" id="organization-id" placeholder="ID de l'organisation" style="padding: 10px 20px; font-size: 16px; background-color: #00000; color: black; border: none; border-radius: 5px; cursor: pointer;" >
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+        <button onclick="loginToOrganization()" style="margin-top: 17px; padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Se connecter</button>
+        </div>
+        <br>
+        <div style="display: flex; justify-content: center; align-items: center;">
+        <button onclick="showCreateOrganizationForm()" style="margin-top: 0px; padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Créer une organisation</button>
+        </div>
     </section>
 
     <!-- Create Organization Section -->
