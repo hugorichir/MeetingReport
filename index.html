@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,89 +12,133 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaWR1b2pjaWhnZGt0bXJrbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM3NDc1NzAsImV4cCI6MjA0OTMyMzU3MH0.3jWkZ1FdNFOFfnzBXEX1GQS2q8-tQ4VvxGwYcbqLO9M"; // Replace with your Supabase Key
         const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : createSupabaseClient(SUPABASE_URL, SUPABASE_KEY);
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const loginSection = document.getElementById('login-section');
-            const createOrgSection = document.getElementById('create-organization-section');
-
-            function generateRandomID() {
-                return Math.random().toString(36).substr(2, 9);
-            }
-            
-            async function checkOrganizationExists(orgName) {
-                try {
-                    const { data, error } = await supabase
-                        .from('organizations') // Replace with your table name
-                        .select('name')
-                        .eq('name', orgName);
-
-                    if (error) {
-                        console.error('Error checking organization existence:', error);
-                        alert('Une erreur est survenue lors de la vérification du nom d\'organisation.');
-                        return false;
-                    }
-
-                    return data.length > 0; // Returns true if organization exists
-                } catch (error) {
-                    console.error('Unexpected error:', error);
-                    alert('Une erreur inattendue est survenue sur la verif du nom pris.');
-                    return false;
-                }
-            }
-            
-            async function saveOrganizationToSupabase(orgName, orgID) {
-                try {
-                    const { data, error } = await supabase
-                        .from('organizations') // Replace with your table name
-                        .insert([{ id: orgID, name: orgName }]);
-
-                    if (error) {
-                        console.error('Error saving to Supabase:', error);
-                        alert('Une erreur est survenue lors de l\'enregistrement de l\'organisation.');
-                    } else {
-                        alert(`Organisation "${orgName}" enregistrée avec succès !`);
-                    }
-                } catch (error) {
-                    console.error('Unexpected error:', error);
-                    alert('Une erreur inattendue est survenue.');
-                }
-            }
+       document.addEventListener("DOMContentLoaded", function () {
+        const loginSection = document.getElementById('login-section');
+        const createOrgSection = document.getElementById('create-organization-section');
 
             window.showCreateOrganizationForm = function() {
                 loginSection.style.display = 'none';
                 createOrgSection.style.display = 'block';
             };
+           
+           async function checkOrganizationExists(orgName) {
+        try {
+            const { data, error } = await supabase
+                .from('organizations') // Replace with your table name
+                .select('name')
+                .eq('name', orgName);
 
-            window.createOrganization = function() {
-                const orgName = document.getElementById('new-organization-name').value.trim();
-                const orgPhoto = document.getElementById('organization-photo').files[0];
+            if (error) {
+                console.error('Error checking organization existence:', error);
+                alert('Une erreur est survenue lors de la vérification du nom d\'organisation.');
+                return false;
+            }
 
-                if (!orgName) {
-                    alert('Veuillez entrer un nom d\'organisation.');
-                    return;
+            return data.length > 0; // Returns true if organization exists
+        } catch (error) {
+            console.error('Unexpected error:', error);
+            alert('Une erreur inattendue est survenue.');
+            return false;
+        }
+    }
+           
+        function generateRandomID() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        async function uploadImageToSupabase(file, orgID) {
+    const fileName = `${orgID}/${file.name}`;
+    try {
+        const { data, error } = await supabase.storage
+            .from('organization-photos') // Ensure this matches your bucket name
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false, // Prevent overwriting files
+            });
+
+        if (error) {
+            console.error('Error uploading file:', error);
+            alert('Erreur lors du téléversement de l\'image.');
+            return null;
+        }
+
+        // Get the public URL for the uploaded file
+        const { publicUrl } = supabase.storage
+            .from('organization-photos')
+            .getPublicUrl(fileName);
+
+        return publicUrl;
+    } catch (error) {
+        console.error('Unexpected error during file upload:', error);
+        alert('Une erreur inattendue est survenue lors du téléversement.');
+        return null;
+    }
+}
+
+        async function saveOrganizationToSupabase(orgName, orgID, photoUrl) {
+            try {
+                const { data, error } = await supabase
+                    .from('organizations') // Replace with your table name
+                    .insert([{ id: orgID, name: orgName, photo_url: photoUrl }]);
+
+                if (error) {
+                    console.error('Error saving to Supabase:', error);
+                    alert('Une erreur est survenue lors de l\'enregistrement de l\'organisation.');
+                } else {
+                    alert(`Organisation "${orgName}" enregistrée avec succès !`);
                 }
-                
-                const exists = await checkOrganizationExists(orgName);
-                if (exists) {
-                    alert('Le nom d\'organisation existe déjà. Veuillez en choisir un autre.');
-                    return;
-                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                alert('Une erreur inattendue est survenue.');
+            }
+        }
 
-                const orgID = generateRandomID();
-                alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
+      window.createOrganization = async function () {
+    const orgName = document.getElementById('new-organization-name').value.trim();
+    const orgPhoto = document.getElementById('organization-photo').files[0];
 
-                saveOrganizationToSupabase(orgName, orgID);
-            };
-        });
+    if (!orgName) {
+        alert('Veuillez entrer un nom d\'organisation.');
+        return;
+    }
 
-        /**
-         * Supabase Table Example:
-         * Table Name: organizations
-         * Columns:
-         * - id (text, primary key)
-         * - name (text)
-         */
+    const orgID = generateRandomID();
+    let photoUrl = null;
+
+    if (orgPhoto) {
+        photoUrl = await uploadImageToSupabase(orgPhoto, orgID);
+        if (!photoUrl) {
+            alert('Erreur lors du téléversement de la photo.');
+            return;
+        }
+    }
+
+    try {
+        await saveOrganizationToSupabase(orgName, orgID, photoUrl);
+    } catch (error) {
+        console.error('Unexpected error during organization creation:', error);
+        alert('Une erreur inattendue est survenue lors de la création de l\'organisation.');
+    }
+};
+
+
+        window.goBackToLogin = function () {
+            createOrgSection.style.display = 'none';
+            loginSection.style.display = 'block';
+        };
+    });
+
+    /**
+     * Supabase Table Example:
+     * Table Name: organizations
+     * Columns:
+     * - id (text, primary key)
+     * - name (text)
+     * - photo_url (text)
+     */
     </script>
 </head>
+
 <body>
     <header class="header">
         <h1>Bienvenue</h1>
@@ -118,7 +163,9 @@
             <input type="file" id="organization-photo" accept="image/*">
             <br>
             <button type="button" onclick="createOrganization()">Créer</button>
+            <button type="button" onclick="goBackToLogin()">Retour</button>
         </form>
     </section>
 </body>
+
 </html>
