@@ -1,1 +1,8 @@
-test
+{
+  "organizations": [
+    {
+      "id": "random_id",
+      "name": "Organization Name"
+    }
+  ]
+}
