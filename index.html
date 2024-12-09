@@ -5,81 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="styles.css">
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const loginSection = document.getElementById('login-section');
-        const createOrgSection = document.getElementById('create-organization-section');
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        const SUPABASE_URL = "https://jniduojcihgdktmrkmth.supabase.co"; // Replace with your Supabase URL
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaWR1b2pjaWhnZGt0bXJrbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM3NDc1NzAsImV4cCI6MjA0OTMyMzU3MH0.3jWkZ1FdNFOFfnzBXEX1GQS2q8-tQ4VvxGwYcbqLO9M"; // Replace with your Supabase Key
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function generateRandomID() {
-            return Math.random().toString(36).substr(2, 9);
-        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const loginSection = document.getElementById('login-section');
+            const createOrgSection = document.getElementById('create-organization-section');
 
-        async function saveOrganizationToPackageJSON(orgName, orgID) {
-            const filePath = './package.json';
-            try {
-                const response = await fetch(filePath);
-                let packageData = {};
+            function generateRandomID() {
+                return Math.random().toString(36).substr(2, 9);
+            }
 
-                if (response.ok) {
-                    const text = await response.text();
-                    try {
-                        packageData = JSON.parse(text); // Valider si c'est bien un JSON
-                    } catch (e) {
-                        console.warn('Fichier package.json non valide. Création d\'un nouveau fichier.');
-                        packageData = { organizations: [] }; // Si invalide, créer une structure vide
+            async function saveOrganizationToSupabase(orgName, orgID) {
+                try {
+                    const { data, error } = await supabase
+                        .from('organizations') // Replace with your table name
+                        .insert([{ id: orgID, name: orgName }]);
+
+                    if (error) {
+                        console.error('Error saving to Supabase:', error);
+                        alert('Une erreur est survenue lors de l'enregistrement de l'organisation.');
+                    } else {
+                        alert(`Organisation "${orgName}" enregistrée avec succès !`);
                     }
+                } catch (error) {
+                    console.error('Unexpected error:', error);
+                    alert('Une erreur inattendue est survenue.');
                 }
-
-                if (!packageData.organizations) {
-                    packageData.organizations = [];
-                }
-
-                packageData.organizations.push({ id: orgID, name: orgName });
-
-                const blob = new Blob([JSON.stringify(packageData, null, 2)], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'package.json';
-                link.click();
-            } catch (error) {
-                console.error('Error updating package.json:', error);
-                alert('Une erreur est survenue lors de la mise à jour de package.json');
-            }
-        }
-
-        window.showCreateOrganizationForm = function () {
-            loginSection.style.display = 'none';
-            createOrgSection.style.display = 'block';
-        };
-
-        window.createOrganization = function () {
-            const orgName = document.getElementById('new-organization-name').value.trim();
-            const orgPhoto = document.getElementById('organization-photo').files[0];
-
-            if (!orgName) {
-                alert('Veuillez entrer un nom d\'organisation.');
-                return;
             }
 
-            const orgID = generateRandomID();
-            alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
+            window.showCreateOrganizationForm = function() {
+                loginSection.style.display = 'none';
+                createOrgSection.style.display = 'block';
+            };
 
-            saveOrganizationToPackageJSON(orgName, orgID);
-        };
-    });
+            window.createOrganization = function() {
+                const orgName = document.getElementById('new-organization-name').value.trim();
+                const orgPhoto = document.getElementById('organization-photo').files[0];
 
-    /**
-     * JSON Format Example for package.json:
-     * {
-     *   "organizations": [
-     *     {
-     *       "id": "random_id",
-     *       "name": "Organization Name"
-     *     }
-     *   ]
-     * }
-     */
-</script>
+                if (!orgName) {
+                    alert('Veuillez entrer un nom d\'organisation.');
+                    return;
+                }
+
+                const orgID = generateRandomID();
+                alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
+
+                saveOrganizationToSupabase(orgName, orgID);
+            };
+        });
+
+        /**
+         * Supabase Table Example:
+         * Table Name: organizations
+         * Columns:
+         * - id (text, primary key)
+         * - name (text)
+         */
+    </script>
 </head>
 <body>
     <header class="header">
