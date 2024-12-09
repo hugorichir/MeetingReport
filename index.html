@@ -14,7 +14,7 @@
                 return Math.random().toString(36).substr(2, 9);
             }
 
-            async function saveOrganizationToExistingPackageJSON(orgName, orgID) {
+            async function saveOrganizationToPackageJSON(orgName, orgID) {
                 const filePath = './package.json';
                 try {
                     const response = await fetch(filePath);
@@ -58,9 +58,21 @@
                 const orgID = generateRandomID();
                 alert(`Organisation "${orgName}" créée avec l'ID: ${orgID}`);
 
-                saveOrganizationToExistingPackageJSON(orgName, orgID);
+                saveOrganizationToPackageJSON(orgName, orgID);
             };
         });
+
+        /**
+         * JSON Format Example for package.json:
+         * {
+         *   "organizations": [
+         *     {
+         *       "id": "random_id",
+         *       "name": "Organization Name"
+         *     }
+         *   ]
+         * }
+         */
     </script>
 </head>
 <body>
